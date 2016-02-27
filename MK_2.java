@@ -47,6 +47,8 @@ public class MK_2 extends SimState	{
     public GeomVectorField lsoa = new GeomVectorField();
     public GeomVectorField flood3 = new GeomVectorField();
     public GeomVectorField flood2 = new GeomVectorField();
+    //public GeomVectorField HouseholdsFZ = new GeomVectorField();
+    //public GeomVectorField Households = new GeomVectorField();
     public GeomVectorField agents = new GeomVectorField();
     public GeomVectorField ngoagents = new GeomVectorField();
     public GeomVectorField elderlyagents = new GeomVectorField();
@@ -125,21 +127,19 @@ public class MK_2 extends SimState	{
      */
 
     Integer[] goals =	{	// MainAgent
-    		// 78277, 82124 // doesn't work
-    		18081, 519
+    		13410, 16452, 2267, 13449
     };
 
     Integer[] goals1 =	{	// NGOAgent
-    		77922, 75184, 30250, 21431,
+    		13410, 16452, 2267, 13449
     };
 
     Integer[] goals2 =	{	// ElderlyAgent
-    		60608, 17877, 78159, 82044
+    		13410, 16452, 2267, 13449
     };
 
     Integer[] goals3 =	{	// LimitedActionsAgent
-    		//74138, 77223
-    		40121, 17661, 79640
+    		13410, 16452, 2267, 13449
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -153,8 +153,8 @@ public class MK_2 extends SimState	{
     public MK_2(long seed)	{
         super(seed);
     }
-
-
+    
+    
     /**
      * Model Initialization
      */
@@ -174,32 +174,32 @@ public class MK_2 extends SimState	{
         sim/
         	app/
         		geo/
-        			MKOne/
+        			MK_2/
         				.java files
          */
-
+        
         try {
             // read in the roads shapefile to create the transit network
         	URL roadsFile = MK_2.class.getResource
         			("/data/NorfolkITNLSOA.shp");
             ShapeFileImporter.read(roadsFile, roads);
-            System.out.println("Roads shapefile: " +roadsFile);
-
+            System.out.println("	Roads shapefile: " +roadsFile);
+            
             Envelope MBR = roads.getMBR();
-
-            // read in the LSOA shapefile to create the background
+            
+            // read in the LSOA shapefile to create the backgroundss
             URL areasFile = MK_2.class.getResource
-            		("/data/NorfolkLSOA.shp");
+            		("/data/NorfolkLSOAFinal1.shp");
             ShapeFileImporter.read(areasFile, lsoa);
-            System.out.println("LSOA shapefile: " +areasFile);
-
+            System.out.println("	LSOA shapefile: " +areasFile);
+           
             MBR.expandToInclude(lsoa.getMBR());
 
             // read in the FZ3 file
             URL flood3File = MK_2.class.getResource
             		("/data/NorfolkFZ3.shp");
             ShapeFileImporter.read(flood3File, flood3);
-            System.out.println("FZ3 shapefile: " +flood3File);
+            System.out.println("	FZ3 shapefile: " +flood3File);
 
             MBR.expandToInclude(flood3.getMBR());
 
@@ -207,12 +207,32 @@ public class MK_2 extends SimState	{
             URL flood2File = MK_2.class.getResource
             		("/data/NorfolkFZ2.shp");
             ShapeFileImporter.read(flood2File, flood2);
-            System.out.println("FZ2 shapefile: " +flood2File);
-            System.out.println();
+            System.out.println("	FZ2 shapefile: " +flood2File);
 
             MBR.expandToInclude(flood2.getMBR());
+            
+            /*
+            // read in the household files
+            URL HouseholdsFZFile = MK_2.class.getResource
+            		("/data/Buildings_IN_FZ_Snapped_to_ITN.shp");
+            ShapeFileImporter.read(HouseholdsFZFile, HouseholdsFZ);
+            System.out.println("Households in FZ shapefile: " +HouseholdsFZFile);
 
+            MBR.expandToInclude(HouseholdsFZ.getMBR());
+            
+            // read in the FZ2 file
+            URL HouseholdsFile = MK_2.class.getResource
+            		("/data/Buildings_NOT_in_FZ_Snapped_to_ITN.shp");
+            ShapeFileImporter.read(HouseholdsFile, Households);
+            System.out.println("Households not in FZ shapefile: " +HouseholdsFile);
+            System.out.println();
+
+            MBR.expandToInclude(Households.getMBR());
+            */
+            
+            
             createNetwork();
+            
 
             //////////////////////////////////////////////
             ////////////////// CLEANUP ///////////////////
@@ -228,8 +248,8 @@ public class MK_2 extends SimState	{
             ////////////////// AGENTS ////////////////////
             //////////////////////////////////////////////
 
-            // initialize agents
-            populateAgent("/data/NorfolkITNLSOA.csv");
+            // initialize agents using the following source .CSV files
+            populateAgent("/data/NorfolkITNLSOAMain.csv");
             populateNGO("/data/NorfolkITNLSOANGO.csv");
             populateElderly("/data/NorfolkITNLSOAELDERLY.csv");
             populateLimitedActions("/data/NorfolkITNLSOALIMITED.csv");
@@ -242,6 +262,8 @@ public class MK_2 extends SimState	{
             lsoa.setMBR(MBR);
             flood3.setMBR(MBR);
             flood2.setMBR(MBR);
+            //HouseholdsFZ.setMBR(MBR);
+            //Households.setMBR(MBR);
             agents.setMBR(MBR);
             ngoagents.setMBR(MBR);
             elderlyagents.setMBR(MBR);
@@ -270,8 +292,8 @@ public class MK_2 extends SimState	{
 
 					// checks to see if anyone has not yet reached destination
                     for (MainAgent a : gstate.agentList)	{
-                        if (!a.reachedDestination)	{
-                            return; // someone is still moving: let them do so
+                        if (!a.reachedDestination)	{	// someone is still moving: let them do so
+                            return; 
                         }
                     }
 
@@ -327,7 +349,7 @@ public class MK_2 extends SimState	{
                 }
             };
             schedule.scheduleRepeating(flipper, 10);
-            // 10? Does it repeat x10? Appears to go on forever...
+            // 10? Does it repeat 10 times? Appears to go on forever...
 
         } catch (FileNotFoundException e)	{
             System.out.println("Error: missing required data file");
@@ -358,14 +380,16 @@ public class MK_2 extends SimState	{
      * Create the road network the agents will traverse
      */
     private void createNetwork()	{
-    	System.out.println("Creating road network...");
+    	System.out.println("Creating road network..." +roads);
     	System.out.println();
     	network.createFromGeomField(roads);
 
         for (Object o : network.getEdges())	{
             GeomPlanarGraphEdge e = (GeomPlanarGraphEdge) o;
-
+            
+            //System.out.println("idsToEdges = " +idsToEdges);
             idsToEdges.put(e.getIntegerAttribute("ROAD_ID").intValue(), e);
+            //System.out.println("idsToEdges = " +idsToEdges);
 
             e.setData(new ArrayList<MainAgent>());
         }
@@ -385,7 +409,6 @@ public class MK_2 extends SimState	{
             String filePath = MK_2.class.getResource(filename).getPath();
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println("Populating model with Main Agents: " +filePath);
-            System.out.println();
 
             BufferedReader d = new BufferedReader(new InputStreamReader(fstream));
             String s;
@@ -396,23 +419,25 @@ public class MK_2 extends SimState	{
             while ((s = d.readLine()) != null)	{
                 String[] bits = s.split(",");
 
-                int pop = Integer.parseInt(bits[39]);
-                //System.out.println("Main Agent (AN:POP): " +pop);
+                int pop = Integer.parseInt(bits[49]);
+                System.out.println();
+                System.out.println("Road segment population (AX:POP): " +pop);
 
                 String homeTract = bits[11];
-                //System.out.println("Main Agent (L:LSOA_ID): " +homeTract);
+                System.out.println("Main Agent homeTract (L:ROAD_ID_1): " +homeTract);
 
-                String workTract = bits[40];
-                //System.out.println("Main Agent (AO:WORK): " +workTract);
+                String workTract = bits[50];
+                System.out.println("Main Agent workTract (AY:WORK): " +workTract);
 
                 String id_id = bits[11];
-                //System.out.println("Main Agent ID_ID (L: ROAD_ID): " +id_id);
+                System.out.println("Main Agent ID_ID (L:ROAD_ID_1): " +id_id);
 
                 String ROAD_ID = bits[11];
-                //System.out.println("Main Agent ROAD_ID (L: ROAD_ID: " +ROAD_ID);
-
+                System.out.println("Main Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
+                System.out.println();
+                
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
-                		(int) Double.parseDouble(ROAD_ID));
+                	(int) Double.parseDouble(ROAD_ID));
                 GeomPlanarGraphEdge goalEdge = idsToEdges.get(
                     goals[ random.nextInt(goals.length)]);
                 //System.out.println("startingEdge: " +startingEdge);
@@ -424,13 +449,19 @@ public class MK_2 extends SimState	{
                 for (int i = 0; i < pop; i++)	{
                 	//pop; i++)	{ 	// NO IDEA IF THIS MAKES A DIFFERENCE!?!
                     MainAgent a = new MainAgent(this, homeTract, workTract, startingEdge, goalEdge);
-                    //System.out.println("Agent " + i + ":" + " Home: " +homeTract + ";"
-                    		//+ "	Work: " +workTract + ",	Starting Edge: " +startingEdge);
+                    System.out.println(
+                    		"Main Agent " + i + ":	" 
+            				+ " Home: " +homeTract + ";	"
+                    		+ "	Work: " +workTract + ";	"
+                    		//+ " Starting Edge: " +startingEdge + ";"
+                    		+ "	Pop: " +pop + ";	"
+                    		+ "	id_id: " +id_id + ";	"
+                    		+ "	Road_ID: " +ROAD_ID);
                     boolean successfulStart = a.start(this);
                     //System.out.println("Starting...");
 
                     if (!successfulStart)	{
-                    	System.out.println("Successful!");
+                    	System.out.println("Main agents added successfully!!");
                     	continue; // DON'T ADD IT if it's bad
                     }
 
@@ -458,7 +489,6 @@ public class MK_2 extends SimState	{
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println();
             System.out.println("Populating model with NGO Agents: " +filePath);
-            System.out.println();
 
             BufferedReader d = new BufferedReader(new InputStreamReader(fstream));
             String s;
@@ -468,16 +498,23 @@ public class MK_2 extends SimState	{
             // read in all data
             while ((s = d.readLine()) != null)	{
                 String[] bits = s.split(",");
-
-                int pop = Integer.parseInt(bits[39]);
+                
+                int pop = Integer.parseInt(bits[49]);
+                System.out.println();
+                System.out.println("Road segment population (AX:POP): " +pop);
 
                 String homeTract = bits[11];
+                System.out.println("Main Agent homeTract (L:ROAD_ID_1): " +homeTract);
 
-                String workTract = bits[40];
+                String workTract = bits[50];
+                System.out.println("Main Agent workTract (AY:WORK): " +workTract);
 
                 String id_id = bits[11];
+                System.out.println("Main Agent ID_ID (L:ROAD_ID_1): " +id_id);
 
                 String ROAD_ID = bits[11];
+                System.out.println("Main Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
+                System.out.println();
 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
@@ -487,12 +524,18 @@ public class MK_2 extends SimState	{
                 for (int i = 0; i < pop; i++)	{
                 	//pop; i++)	{ 	// NO IDEA IF THIS MAKES A DIFFERENCE!?!
                     NGOAgent a = new NGOAgent(this, homeTract, workTract, startingEdge, goalEdge);
-                    //System.out.println("NGO Agent " + i + ":" + " Home: " +homeTract + ";"
-                    	//	+ "	Work: " +workTract + ",	Starting Edge: " +startingEdge);
+                    System.out.println(
+                    		"NGO Agent " + i + ":	" 
+            				+ " Home: " +homeTract + ";	"
+                    		+ "	Work: " +workTract + ";	"
+                    		//+ " Starting Edge: " +startingEdge + ";"
+                    		+ "	Pop: " +pop + ";	"
+                    		+ "	id_id: " +id_id + ";	"
+                    		+ "	Road_ID: " +ROAD_ID);
                     boolean successfulStart = a.start(this);
 
                     if (!successfulStart)	{
-                    	System.out.println("Successful!");
+                    	System.out.println("NGO agents added successfully!!");
                     	continue; // DON'T ADD IT if it's bad
                     }
 
@@ -519,7 +562,6 @@ public class MK_2 extends SimState	{
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println();
             System.out.println("Populating model with Elderly Agents: " +filePath);
-            System.out.println();
 
             BufferedReader d = new BufferedReader(new InputStreamReader(fstream));
             String s;
@@ -530,15 +572,22 @@ public class MK_2 extends SimState	{
             while ((s = d.readLine()) != null)	{
                 String[] bits = s.split(",");
 
-                int pop = Integer.parseInt(bits[39]);
+                int pop = Integer.parseInt(bits[49]);
+                System.out.println();
+                System.out.println("Road segment population (AX:POP): " +pop);
 
                 String homeTract = bits[11];
+                System.out.println("Main Agent homeTract (L:ROAD_ID_1): " +homeTract);
 
-                String workTract = bits[40];
+                String workTract = bits[50];
+                System.out.println("Main Agent workTract (AY:WORK): " +workTract);
 
                 String id_id = bits[11];
+                System.out.println("Main Agent ID_ID (L:ROAD_ID_1): " +id_id);
 
                 String ROAD_ID = bits[11];
+                System.out.println("Main Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
+                System.out.println();
 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
@@ -548,12 +597,18 @@ public class MK_2 extends SimState	{
                 for (int i = 0; i < pop; i++)	{
                 	//pop; i++)	{ 	// NO IDEA IF THIS MAKES A DIFFERENCE!?!
                     ElderlyAgent a = new ElderlyAgent(this, homeTract, workTract, startingEdge, goalEdge);
-                    //System.out.println("Elderly Agent " + i + ":" + " Home: " +homeTract + ";"
-                    	//	+ "	Work: " +workTract + ",	Starting Edge: " +startingEdge);
+                    System.out.println(
+                    		"Elderly Agent " + i + ":	" 
+            				+ " Home: " +homeTract + ";	"
+                    		+ "	Work: " +workTract + ";	"
+                    		//+ " Starting Edge: " +startingEdge + ";"
+                    		+ "	Pop: " +pop + ";	"
+                    		+ "	id_id: " +id_id + ";	"
+                    		+ "	Road_ID: " +ROAD_ID);
                     boolean successfulStart = a.start(this);
 
                     if (!successfulStart)	{
-                    	System.out.println("Successful!");
+                    	System.out.println("Elderly agents added successfully!");
                     	continue; // DON'T ADD IT if it's bad
                     }
 
@@ -580,7 +635,6 @@ public class MK_2 extends SimState	{
             FileInputStream fstream = new FileInputStream(filePath);
             System.out.println();
             System.out.println("Populating model with Limited Actions Agents: " +filePath);
-            System.out.println();
 
             BufferedReader d = new BufferedReader(new InputStreamReader(fstream));
             String s;
@@ -591,15 +645,22 @@ public class MK_2 extends SimState	{
             while ((s = d.readLine()) != null)	{
                 String[] bits = s.split(",");
 
-                int pop = Integer.parseInt(bits[39]);
+                int pop = Integer.parseInt(bits[49]);
+                System.out.println();
+                System.out.println("Road segment population (AX:POP): " +pop);
 
                 String homeTract = bits[11];
+                System.out.println("Main Agent homeTract (L:ROAD_ID_1): " +homeTract);
 
-                String workTract = bits[40];
+                String workTract = bits[50];
+                System.out.println("Main Agent workTract (AY:WORK): " +workTract);
 
                 String id_id = bits[11];
+                System.out.println("Main Agent ID_ID (L:ROAD_ID_1): " +id_id);
 
                 String ROAD_ID = bits[11];
+                System.out.println("Main Agent road segment (L:ROAD_ID_1): " +ROAD_ID);
+                System.out.println();
 
                 GeomPlanarGraphEdge startingEdge = idsToEdges.get(
                 		(int) Double.parseDouble(ROAD_ID));
@@ -609,12 +670,18 @@ public class MK_2 extends SimState	{
                 for (int i = 0; i < pop; i++)	{
                 	//pop; i++)	{ 	// NO IDEA IF THIS MAKES A DIFFERENCE!?!
                     LimitedActionsAgent a = new LimitedActionsAgent(this, homeTract, workTract, startingEdge, goalEdge);
-                    //System.out.println("Limited Actions Agent " + i + ":" + " Home: " +homeTract + ";"
-                    	//	+ "	Work: " +workTract + ",	Starting Edge: " +startingEdge);
+                    System.out.println(
+                    		"Limited Actions Agent " + i + ":	" 
+            				+ " Home: " +homeTract + ";	"
+                    		+ "	Work: " +workTract + ";	"
+                    		//+ " Starting Edge: " +startingEdge + ";"
+                    		+ "	Pop: " +pop + ";	"
+                    		+ "	id_id: " +id_id + ";	"
+                    		+ "	Road_ID: " +ROAD_ID);
                     boolean successfulStart = a.start(this);
 
                     if (!successfulStart)	{
-                    	System.out.println("Successful!");
+                    	System.out.println("Limited Actions agents successfully added!");
                     	continue; // DON'T ADD IT if it's bad
                     }
 

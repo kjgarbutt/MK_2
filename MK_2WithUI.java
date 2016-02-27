@@ -12,6 +12,7 @@ import sim.display.Display2D;
 import sim.display.GUIState;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.field.geo.GeomVectorField;
 import sim.portrayal.geo.GeomPortrayal;
 import sim.portrayal.geo.GeomVectorFieldPortrayal;
 import sim.portrayal.simple.MovablePortrayal2D;
@@ -42,6 +43,8 @@ public class MK_2WithUI extends GUIState	{
     private GeomVectorFieldPortrayal roadsPortrayal = new GeomVectorFieldPortrayal();
     private GeomVectorFieldPortrayal flood3Portrayal = new GeomVectorFieldPortrayal();
     private GeomVectorFieldPortrayal flood2Portrayal = new GeomVectorFieldPortrayal();
+    //private GeomVectorFieldPortrayal HouseholdsFZPortrayal = new GeomVectorFieldPortrayal();
+    //private GeomVectorFieldPortrayal HouseholdsPortrayal = new GeomVectorFieldPortrayal();
     private GeomVectorFieldPortrayal agentPortrayal = new GeomVectorFieldPortrayal();
     private GeomVectorFieldPortrayal ngoAgentPortrayal = new GeomVectorFieldPortrayal();
     private GeomVectorFieldPortrayal elderlyagentPortrayal = new GeomVectorFieldPortrayal();
@@ -196,25 +199,32 @@ public class MK_2WithUI extends GUIState	{
 
             flood2Portrayal.setField(world.flood2);
             flood2Portrayal.setPortrayalForAll(new GeomPortrayal(Color.BLUE, true));
+            
+            //HouseholdsFZPortrayal.setField(world.HouseholdsFZ);
+            //HouseholdsFZPortrayal.setPortrayalForAll(new GeomPortrayal(Color.YELLOW, 50, true));
+            
+            //HouseholdsPortrayal.setField(world.Households);
+            //HouseholdsPortrayal.setPortrayalForAll(new GeomPortrayal(Color.ORANGE, 50, true));
 
             agentPortrayal.setField(world.agents);
-            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.GREEN, 200, true));
-            //agentPortrayal.setPortrayalForAll(new MovablePortrayal2D(new OvalPortrayal2D(Color.GREEN, 1)));
-
+            agentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.GREEN, 25, true));
+            
             ngoAgentPortrayal.setField(world.ngoagents);
-            ngoAgentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 200, true));
-            //ngoagentPortrayal.setPortrayalForAll(new sim.portrayal.simple.RectanglePortrayal2D(Color.RED, 1));
-
+            ngoAgentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.RED, 25, true));
+            
             elderlyagentPortrayal.setField(world.elderlyagents);
-            elderlyagentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.PINK, 200, true));
-            //elderlyagentPortrayal.setPortrayalForAll(new sim.portrayal.simple.HexagonalPortrayal2D(Color.PINK, 1));
-
+            elderlyagentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.PINK, 25, true));
+            
             limactagentPortrayal.setField(world.limitedactionsagents);
-            limactagentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.ORANGE, 200, true));
-            //limactagentPortrayal.setPortrayalForAll(new sim.portrayal.simple.HexagonalPortrayal2D(Color.ORANGE, 1));
-
-            // tractsPortrayal.setPortrayalForAll(new PolyPortrayal());//(Color.GREEN,true));
-            // roadsPortrayal.setPortrayalForAll(new RoadPortrayal());//GeomPortrayal(Color.DARK_GRAY,0.001,false));
+            limactagentPortrayal.setPortrayalForAll(new GeomPortrayal(Color.ORANGE, 25, true));
+            
+            //agentPortrayal.setPortrayalForAll(new sim.portrayal.simple.OvalPortrayal2D(Color.GREEN, 1));
+            //ngoAgentPortrayal.setPortrayalForAll(new sim.portrayal.simple.RectanglePortrayal2D(Color.RED, 1));
+            //elderlyagentPortrayal.setPortrayalForAll(new sim.portrayal.simple.HexagonalPortrayal2D(Color.GRAY, 1));
+            //limactagentPortrayal.setPortrayalForAll(new sim.portrayal.simple.OvalPortrayal2D(Color.PINK, 1));
+            
+            //tractsPortrayal.setPortrayalForAll(new PolyPortrayal());//(Color.GREEN,true));
+            //roadsPortrayal.setPortrayalForAll(new RoadPortrayal());//GeomPortrayal(Color.DARK_GRAY,0.001,false));
 
             display.reset();
             display.setBackdrop(Color.WHITE);
@@ -244,8 +254,10 @@ public class MK_2WithUI extends GUIState	{
             // Put portrayals in order from bottom layer to top
             displayFrame.setVisible(true);
             display.attach(lsoaPortrayal, "LSOA");
-            display.attach(flood2Portrayal, "FZ2 Zone");
-            display.attach(flood3Portrayal, "FZ3 Zone");
+            //display.attach(flood2Portrayal, "FZ2 Zone");
+            //display.attach(flood3Portrayal, "FZ3 Zone");
+            //display.attach(HouseholdsPortrayal, "Households not in FZ");
+            //display.attach(HouseholdsFZPortrayal, "Households in FZ");
             display.attach(roadsPortrayal, "Roads");
             display.attach(agentPortrayal, "Agents");
             display.attach(ngoAgentPortrayal, "NGO Agents");

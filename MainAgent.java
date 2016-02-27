@@ -44,7 +44,7 @@ public final class MainAgent implements Steppable	{
     // private Point location;
     private MasonGeometry location; // point that denotes agent's position
     // How much to move the agent by in each step()
-    private double moveRate = 750; //0.001;
+    private double moveRate = 70;
     private LengthIndexedLine segment = null;
     double startIndex = 0.0; // start position of current line
     double endIndex = 0.0; // end position of current line
@@ -107,8 +107,9 @@ public final class MainAgent implements Steppable	{
    public boolean start(MK_2 state)	{
        findNewAStarPath(state);
        if (pathFromHomeToWork.isEmpty())	{
-           System.out.println("Initialization of agent failed: it is located in a part "
-               + "of the network that cannot access the given goal node");
+           System.out.println("Initialization of a Main Agent (" +pathFromHomeToWork
+           		+ ") failed: it is located in a part of the network that cannot access"
+           		+ "the given goal node");
            return false;
        } else	{
            return true;
