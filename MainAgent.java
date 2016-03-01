@@ -107,7 +107,7 @@ public final class MainAgent implements Steppable	{
    public boolean start(MK_2 state)	{
        findNewAStarPath(state);
        if (pathFromHomeToWork.isEmpty())	{
-           System.out.println("Initialization of a Main Agent (" +pathFromHomeToWork
+           System.out.println("Initialization of a Main Agent (" +homeTract
            		+ ") failed: it is located in a part of the network that cannot access"
            		+ "the given goal node");
            return false;
@@ -175,7 +175,7 @@ public final class MainAgent implements Steppable	{
        }
 
        // make sure that we're heading in the right direction
-       boolean toWork = ((MK_2) state).goToWork1;
+       boolean toWork = ((MK_2) state).goToWork;
        if ((toWork && pathDirection < 0) || (!toWork && pathDirection > 0))	{
            flipPath();
        }
